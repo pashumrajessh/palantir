@@ -1,0 +1,6 @@
+﻿equipment_id,equipment_name,equipment_model,equipment_type,equipment_installation_date,equipment_capacity,equipment_inspection_id,equipment_year,equipment_plant,equipment_active,equipment_inspection_date
+EQUIP001,Alpha,X1A,Type A,2019-07-15,1200,INS_A52DE,2019,Plant 1,true,2023-01-10
+EQUIP002,Beta,Y2B,Type B,2021-11-15,1500,INS_B78GH,2020,Plant 2,true,2022-11-15
+EQUIP003,Gamma,Z3C,Type C,2021-03-10,1300,INS_C94IJ,2021,Plant 3,true,2023-06-05
+EQUIP004,Delta,W4D,Type D,2021-11-25,1400,INS_D31KL,2021,Plant 4,true,2022-12-20
+EQUIP005,Epsilon,V5E,Type E,2022-08-01,1600,INS_E67MN,2022,Plant 5,true,2023-01-15
