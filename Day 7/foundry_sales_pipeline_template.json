@@ -1,0 +1,72 @@
+{
+  "project": "Sales Analytics Pipeline",
+  "environments": [
+    "dev",
+    "test",
+    "prod"
+  ],
+  "shared": {
+    "reference_data": "/shared/reference_data",
+    "config": "/shared/config/global_config.json"
+  },
+  "transform_graph": [
+    {
+      "name": "raw_sales_data",
+      "type": "input_dataset",
+      "path": "/shared/reference_data/sales_data_raw"
+    },
+    {
+      "name": "cleaned_sales_data",
+      "type": "sql_transform",
+      "query": "\n                SELECT *\n                FROM `${input_path}`\n                WHERE transaction_amount IS NOT NULL\n            ",
+      "params": {
+        "input_path": "/${env}/datasets/raw_sales_data"
+      }
+    },
+    {
+      "name": "sales_enriched",
+      "type": "python_transform",
+      "script": "\n                df = spark.read.parquet(input_path)\n                df = df.join(products_df, \"product_id\").join(customers_df, \"customer_id\")\n                df.write.mode(\"overwrite\").parquet(output_path)\n            ",
+      "params": {
+        "input_path": "/${env}/datasets/cleaned_sales_data",
+        "output_path": "/${env}/datasets/sales_enriched"
+      }
+    },
+    {
+      "name": "sales_summary",
+      "type": "sql_transform",
+      "query": "\n                SELECT \n                  region,\n                  category,\n                  DATE(transaction_ts) AS transaction_date,\n                  COUNT(*) AS transactions,\n                  SUM(transaction_amount) AS total_sales\n                FROM `${input_path}`\n                GROUP BY region, category, DATE(transaction_ts)\n            ",
+      "params": {
+        "input_path": "/${env}/datasets/sales_enriched"
+      }
+    },
+    {
+      "name": "sales_summary_output",
+      "type": "output_dataset",
+      "path": "/${env}/datasets/sales_summary"
+    }
+  ],
+  "promotion_spec": {
+    "sourceEnvironment": "dev",
+    "targetEnvironment": "test",
+    "components": [
+      {
+        "type": "Transformation",
+        "name": "sales_summary_transform"
+      },
+      {
+        "type": "Dataset",
+        "name": "sales_summary"
+      },
+      {
+        "type": "OntologyModel",
+        "name": "SalesAnalyticsOntology",
+        "version": "v2.0"
+      },
+      {
+        "type": "SlateApp",
+        "name": "SalesDashboard"
+      }
+    ]
+  }
+}
